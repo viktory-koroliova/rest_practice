@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime
-from datetime import date
 from typing import Optional, Type, Any
 
 from django.core.exceptions import ValidationError
@@ -12,40 +11,37 @@ from user.models import User
 
 
 class Borrowing(models.Model):
-    borrow_date = models.DateField(datetime.date.today())
+    borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(blank=True, null=True)
     book = models.ForeignKey(to=Book, on_delete=models.CASCADE)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ["-borrow_date"]
+
     @staticmethod
     def validate_date(
-            borrow_date: date,
-            expected_return_date: date,
+            expected_return_date: datetime.date,
             error_to_raise: Type[ValidationError],
-            actual_return_date: Optional[date] = None
+            actual_return_date: Optional[datetime.date] = None
     ) -> None:
         if actual_return_date:
             if not (
-                    (borrow_date == date.today())
-                    and (borrow_date <= expected_return_date)
+                    (datetime.date.today() <= expected_return_date)
                     and (expected_return_date <= actual_return_date)
             ):
                 raise error_to_raise(
-                    "Borrowing date should be today's date, and Expected and "
-                    "Actual return date cannot be earlier than today's date")
+                    "Expected and Actual return date "
+                    "cannot be earlier than today's date")
         else:
-            if not (
-                    (borrow_date == date.today())
-                    and (borrow_date <= expected_return_date)
-            ):
+            if not (datetime.date.today() <= expected_return_date):
                 raise error_to_raise(
-                    "Borrowing date should be today's date, and Expected "
-                    "return date cannot be earlier than today's date")
+                    "Expected return date cannot be earlier than today's date"
+                )
 
     def clean(self) -> None:
         Borrowing.validate_date(
-            self.borrow_date,
             self.expected_return_date,
             ValidationError,
             self.actual_return_date,
