@@ -5,7 +5,7 @@ from rest_framework.serializers import Serializer
 
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAdminOrIfAuthenticatedReadOnly
-from borrowings.serializers import BorrowingDetailSerializer, BorrowingListSerializer
+from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -20,7 +20,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
             return BorrowingListSerializer
-        return BorrowingDetailSerializer
+        return BorrowingSerializer
 
     def perform_create(self, serializer: Type[Serializer]) -> None:
         serializer.save(user=self.request.user)
