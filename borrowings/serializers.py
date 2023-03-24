@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 from django.core.exceptions import ValidationError
@@ -6,6 +7,7 @@ from rest_framework import serializers
 from books.models import Book
 from books.serializers import BookSerializer
 from borrowings.models import Borrowing
+from borrowings.telegram_notifications import send_telegram_notification
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -22,11 +24,19 @@ class BorrowingSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data: dict[str, Any]) -> Borrowing:
-        book_to_update = Book.objects.get(title=validated_data["book"])
-        if not book_to_update.inventory:
+        book = Book.objects.get(title=validated_data["book"])
+        if not book.inventory:
             raise ValidationError("This book is currently out of stock")
-        book_to_update.inventory -= 1
-        book_to_update.save()
+        book.inventory -= 1
+        book.save()
+
+        asyncio.run(
+            send_telegram_notification(
+                f"Book {book.title} was borrowed by {validated_data['user']}. "
+                f"Expected return date: {validated_data['expected_return_date']}"
+            )
+        )
+
         return super().create(validated_data)
 
 

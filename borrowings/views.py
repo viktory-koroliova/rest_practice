@@ -1,7 +1,6 @@
 import datetime
-from typing import Type, Any
+from typing import Type
 
-from django.core.exceptions import ValidationError
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
