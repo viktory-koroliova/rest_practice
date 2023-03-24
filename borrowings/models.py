@@ -18,33 +18,22 @@ class Borrowing(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="borrowings")
 
     class Meta:
-        ordering = ["-borrow_date"]
+        ordering = ["-borrow_date", "-id"]
 
     @staticmethod
     def validate_date(
             expected_return_date: datetime.date,
             error_to_raise: Type[ValidationError],
-            actual_return_date: Optional[datetime.date] = None
     ) -> None:
-        if actual_return_date:
-            if not (
-                    (datetime.date.today() <= expected_return_date)
-                    and (expected_return_date <= actual_return_date)
-            ):
-                raise error_to_raise(
-                    "Expected and Actual return date "
-                    "cannot be earlier than today's date")
-        else:
-            if not (datetime.date.today() <= expected_return_date):
-                raise error_to_raise(
-                    "Expected return date cannot be earlier than today's date"
-                )
+        if not (datetime.date.today() <= expected_return_date):
+            raise error_to_raise(
+                "Expected return date cannot be earlier than today's date"
+            )
 
     def clean(self) -> None:
         Borrowing.validate_date(
             self.expected_return_date,
             ValidationError,
-            self.actual_return_date,
         )
 
     def save(
