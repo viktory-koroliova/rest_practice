@@ -21,17 +21,13 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "user"
         )
 
-    def create(self, validated_data: dict[str, Any]) -> Borrowing:
-        book_to_update = Book.objects.get(title=validated_data["book"])
-        if not book_to_update.inventory:
-            raise ValidationError("This book is currently out of stock")
-        book_to_update.inventory -= 1
-        book_to_update.save()
-        return super().create(validated_data)
+
+class BorrowingListSerializer(BorrowingSerializer):
+    book = BookSerializer(many=False, read_only=True)
+    user = serializers.StringRelatedField(many=False, read_only=True)
 
 
-class BorrowingListSerializer(serializers.ModelSerializer):
-    book = BookSerializer()
+class BorrowingCreateSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(many=False, read_only=True)
 
     class Meta:
@@ -43,3 +39,11 @@ class BorrowingListSerializer(serializers.ModelSerializer):
             "book",
             "user"
         )
+
+    def create(self, validated_data: dict[str, Any]) -> Borrowing:
+        book_to_update = Book.objects.get(title=validated_data["book"])
+        if not book_to_update.inventory:
+            raise ValidationError("This book is currently out of stock")
+        book_to_update.inventory -= 1
+        book_to_update.save()
+        return super().create(validated_data)
