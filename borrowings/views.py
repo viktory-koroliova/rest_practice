@@ -40,7 +40,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: Type[Serializer]) -> None:
         serializer.save(user=self.request.user)
 
-    @action(methods=["POST"], detail=True, url_path="return-book", permission_classes=[IsAuthenticated])
+    @action(methods=["POST"], detail=True, url_path="return", permission_classes=[IsAuthenticated])
     def return_book(self, request, pk=None):
 
         """Endpoint for borrowing returning"""
