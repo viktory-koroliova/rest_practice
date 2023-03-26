@@ -1,7 +1,8 @@
 import datetime
-from typing import Type, Optional
+from typing import Type, Optional, Any
 
 from django.db.models import QuerySet
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -78,3 +79,29 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "is_active",
+                type={"type": "int"},
+                description="filter returned (0) / not returned (1) "
+                            "borrowings (ex: ?is_active=1)"
+            ),
+            OpenApiParameter(
+                "user_id",
+                type={"type": "int"},
+                description="filter borrowings by user id: "
+                            "available for admin only (ex: ?actors=1,2)"
+            ),
+        ]
+    )
+    def list(
+            self,
+            request: Request,
+            *args: Any,
+            **kwargs: Any
+    ) -> Response:
+        return super().list(request, *args, **kwargs)
+
+
