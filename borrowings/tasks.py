@@ -16,7 +16,8 @@ def check_overdue_borrowings() -> None:
         for borrowing in overdue_borrowings:
             asyncio.run(send_telegram_notification(
                 f"Borrowing of {borrowing.book} "
-                f"is overdue by user {borrowing.user}."
+                f"is overdue by user {borrowing.user}. "
+                f"Expected return date - {borrowing.expected_return_date}"
             ))
     else:
         asyncio.run(send_telegram_notification(
