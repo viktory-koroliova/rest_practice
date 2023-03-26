@@ -43,23 +43,11 @@ services:
       dockerfile: Dockerfile
     command: >
       sh -c "python manage.py wait_for_db &&
-      celery -A rest_practice beat -l INFO  --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+            celery -A rest_practice beat -l INFO  --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     depends_on:
       - web
       - redis
       - db
     restart: on-failure
-    env_file:
-      - .env
-
-  flower:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "5555:5555"
-    command: "celery -A rest_practice flower --address=0.0.0.0"
-    depends_on:
-      - celery
     env_file:
       - .env
