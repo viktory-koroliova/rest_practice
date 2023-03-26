@@ -14,8 +14,16 @@ class Borrowing(models.Model):
     borrow_date = models.DateField(auto_now_add=True)
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(blank=True, null=True)
-    book = models.ForeignKey(to=Book, on_delete=models.CASCADE, related_name="borrowings")
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="borrowings")
+    book = models.ForeignKey(
+        to=Book,
+        on_delete=models.CASCADE,
+        related_name="borrowings"
+    )
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name="borrowings"
+    )
 
     class Meta:
         ordering = ["-borrow_date", "-id"]

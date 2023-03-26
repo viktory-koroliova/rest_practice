@@ -1,22 +1,27 @@
 import datetime
-from typing import Type
+from typing import Type, Optional
 
+from django.db.models import QuerySet
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAdminOrIfAuthenticatedReadOnly
-from borrowings.serializers import BorrowingSerializer, BorrowingListSerializer, BorrowingReturnSerializer, \
+from borrowings.serializers import (
+    BorrowingSerializer,
+    BorrowingListSerializer,
     BorrowingReturnSerializer
+)
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         queryset = Borrowing.objects.all().select_related("book")
 
         is_active = self.request.query_params.get("is_active")
@@ -29,7 +34,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(user_id=user_id)
         return queryset
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action in ("list", "retrieve"):
             return BorrowingListSerializer
         if self.action == "return_book":
@@ -40,8 +45,17 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: Type[Serializer]) -> None:
         serializer.save(user=self.request.user)
 
-    @action(methods=["POST"], detail=True, url_path="return", permission_classes=[IsAuthenticated])
-    def return_book(self, request, pk=None):
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="return",
+        permission_classes=[IsAuthenticated]
+    )
+    def return_book(
+            self,
+            request: Request,
+            pk: Optional[int] = None
+    ) -> Response:
 
         """Endpoint for borrowing returning"""
         borrowing = self.get_object()
@@ -60,4 +74,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_200_OK,
             )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

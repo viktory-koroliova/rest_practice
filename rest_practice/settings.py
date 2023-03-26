@@ -138,9 +138,6 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
-    ],
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -152,6 +149,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,  # will return also new refresh token
 }
 
+# Telegrams chat settings
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
@@ -168,6 +166,6 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BEAT_SCHEDULE = {
     'check_condition_every_minute': {
         'task': 'borrowings.tasks.check_overdue_borrowings',
-        'schedule': crontab(),  # runs every minute
+        'schedule': crontab(),  # runs every minute  # TODO: change to daily
     },
 }
