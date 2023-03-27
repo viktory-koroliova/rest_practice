@@ -63,22 +63,18 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         book = borrowing.book
         serializer = self.get_serializer(borrowing, data=request.data)
 
-        if serializer.is_valid():
-            book.inventory += 1
-            book.save()
-            borrowing.actual_return_date = datetime.date.today()
-            serializer.save()
-
-            return Response(
-                {"status": "Your book was successfully returned",
-                 },
-                status=status.HTTP_200_OK,
-            )
+        serializer.is_valid(raise_exception=True)
+        book.inventory += 1
+        book.save()
+        borrowing.actual_return_date = datetime.date.today()
+        serializer.save()
 
         return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+            {"status": "Your book was successfully returned",
+             },
+            status=status.HTTP_200_OK,
         )
+
 
     @extend_schema(
         parameters=[
