@@ -75,7 +75,6 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -99,5 +98,3 @@ class BorrowingViewSet(viewsets.ModelViewSet):
             **kwargs: Any
     ) -> Response:
         return super().list(request, *args, **kwargs)
-
-
